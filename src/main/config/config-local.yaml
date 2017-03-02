@@ -1,0 +1,54 @@
+
+# A unique name for the cluster that this service node/instance belongs to; use alphanumeric and underscores only.
+cluster: local_default
+
+validTablePlacements:
+  - "pii_us:pii"
+  - "pii_eu:pii"
+
+
+#emoDataCenterConfiguration:
+#  - euEastUri: http://localhost:8080
+#  - euwestUri: http://localhost:9080
+
+
+emoDataCenterConfiguration:
+  - datacenter: "us-east-1"
+    uri: http://localhost:8080
+    #uri: http://emodb.bazaar.us-east-1.nexus.bazaarvoice.com:8080
+    placements:
+      - "pii_us:pii"
+    locales:
+      - "en_us"
+  - datacenter: "eu-west-1"
+    uri: http://localhost:8090
+    #uri: http://emodb.bazaar.eu-west-1.nexus.bazaarvoice.com:8080
+    placements:
+      - "pii_eu:pii"
+    locales:
+      - "en_eu"
+
+piiConfiguration:
+  cluster: piiproxy cluster
+  dataCenter: datacenter1
+  seeds: 127.0.0.1
+  port: 9160
+  maxConnectionsPerHost: 5
+  healthCheck:
+    name: piiproxy
+
+# Configure the HTTP server that listens for inbound requests
+server:
+  applicationConnectors:
+    - type: instrumentedHttp
+      port: 8888
+  adminConnectors:
+    - type: instrumentedHttp
+      port: 8889
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      logFormat: "%-5p [%d{ISO8601,UTC}] [%thread] %c: %m%n%xEx"
+      timeZone: UTC
