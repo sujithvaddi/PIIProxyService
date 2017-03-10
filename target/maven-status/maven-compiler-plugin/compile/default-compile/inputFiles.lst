@@ -1,4 +1,8 @@
-/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/Saying.java
-/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PIIProxyConfiguration.java
-/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PIIProxyService.java
-/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PIIProxyResource.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PiiProxyConfiguration.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PiiProxyService.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/Annotations/EmoDataStoreUsEast1Client.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/pii/PiiProxySource.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/pii/PiiProxySourceImpl.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/PiiProxyModule.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/Annotations/EmoDataStoreEuWest1Client.java
+/DIWork/PIIProxy/src/main/java/com/bazaarvoice/piiproxy/Resource/PIIProxyResource1.java

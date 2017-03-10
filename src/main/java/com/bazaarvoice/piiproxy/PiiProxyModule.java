@@ -1,7 +1,7 @@
 package com.bazaarvoice.piiproxy;
 
 import com.bazaarvoice.emodb.common.dropwizard.discovery.PayloadBuilder;
-import com.bazaarvoice.emodb.sor.api.DataStore;
+import com.bazaarvoice.emodb.sor.api.AuthDataStore;
 import com.bazaarvoice.emodb.sor.client.DataStoreClient;
 import com.bazaarvoice.emodb.sor.client.DataStoreClientFactory;
 import com.bazaarvoice.ostrich.ServiceEndPoint;
@@ -21,7 +21,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import com.sun.jersey.api.client.Client;
 import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.core.UriBuilder;
@@ -49,11 +48,22 @@ public class PiiProxyModule extends AbstractModule {
 
         bind(PiiProxyConfiguration.class).toInstance(_configuration);
 
+        bind(String.class).annotatedWith(Names.named("AdminKey")).toInstance(_configuration.getAdminApiKey());
+
         bind(MetricRegistry.class).toInstance(_environment.metrics());
 
         bind(PiiProxySource.class).to(PiiProxySourceImpl.class).asEagerSingleton();
         bind(PIIProxyResource1.class).asEagerSingleton();
     }
+
+//    @Provides
+//    @Singleton
+//    Client provideJerseyClient(MetricRegistry metricRegistry) {
+//        return new JerseyClientBuilder(metricRegistry)
+//                .using(_configuration.getHttpClientConfiguration())
+//                .using(_environment)
+//                .build("piiproxy");
+//    }
 
     /**
      * Provides a us-east-1 Emo client.
@@ -61,24 +71,28 @@ public class PiiProxyModule extends AbstractModule {
     @Provides
     @Singleton
     @EmoDataStoreUsEast1Client
-    DataStore provideEmoUsEastClient(Client jerseyClient, @Named ("AdminKey") String apiKey, MetricRegistry metricRegistry) {
+    AuthDataStore provideEmoUsEastClient(/* Client jerseyClient, */ @Named ("AdminKey") String apiKey, MetricRegistry metricRegistry) {
 
-        ServiceFactory<DataStore> clientFactory = DataStoreClientFactory
-                .forClusterAndHttpClient(_configuration.getCluster(), jerseyClient)
-                .usingCredentials(apiKey);
+        ServiceFactory<AuthDataStore> clientFactory = DataStoreClientFactory
+//                .forClusterAndHttpClient(_configuration.getCluster(), jerseyClient)
+                .forCluster(_configuration.getUsEast1Datacenter(), metricRegistry);
+//                .usingCredentials(apiKey);
 
-        URI uri = UriBuilder.fromPath(_configuration.getEmoDataCenterConfiguration().getUsEastUri()).build();
+        final String usEast1DataCenterName = _configuration.getUsEast1Datacenter();
+        String usEast1DataCenterUri = _configuration.getEmoDataCenterConfiguration().stream()
+                .filter(p -> p.getDatacenter().equals(usEast1DataCenterName)).findFirst().get().getUri();
+        URI uri = UriBuilder.fromPath(usEast1DataCenterUri).build();
 
         ServiceEndPoint endPoint = new ServiceEndPointBuilder()
                 .withServiceName(clientFactory.getServiceName())
-                .withId("emodb-us-east-1")
+                .withId(usEast1DataCenterName)
                 .withPayload(new PayloadBuilder()
                         .withUrl(uri.resolve(DataStoreClient.SERVICE_PATH))
                         .withAdminUrl(uri)
                         .toString())
                 .build();
 
-        return ServicePoolBuilder.create(DataStore.class)
+        return ServicePoolBuilder.create(AuthDataStore.class)
                 .withMetricRegistry(metricRegistry)
                 .withHostDiscovery(new FixedHostDiscovery(endPoint))
                 .withServiceFactory(clientFactory)
@@ -91,27 +105,32 @@ public class PiiProxyModule extends AbstractModule {
     @Provides
     @Singleton
     @EmoDataStoreEuWest1Client
-    DataStore provideEmoEuWestClient(Client jerseyClient, @Named ("AdminKey") String apiKey, MetricRegistry metricRegistry) {
+    AuthDataStore provideEmoEuWestClient(/* Client jerseyClient, */ @Named ("AdminKey") String apiKey, MetricRegistry metricRegistry) {
 
-        ServiceFactory<DataStore> clientFactory = DataStoreClientFactory
-                .forClusterAndHttpClient(_configuration.getCluster(), jerseyClient)
-                .usingCredentials(apiKey);
+        ServiceFactory<AuthDataStore> clientFactory = DataStoreClientFactory
+//                .forClusterAndHttpClient(_configuration.getCluster(), jerseyClient)
+                .forCluster(_configuration.getEuWest1Datacenter(), metricRegistry);
+//                .usingCredentials(apiKey);
 
-        URI uri = UriBuilder.fromPath(_configuration.getEmoDataCenterConfiguration().getEuWestUri()).build();
+        final String euWest1DataCenterName = _configuration.getUsEast1Datacenter();
+        String euWest1DataCenterUri = _configuration.getEmoDataCenterConfiguration().stream()
+                .filter(p -> p.getDatacenter().equals(euWest1DataCenterName)).findFirst().get().getUri();
+        URI uri = UriBuilder.fromPath(euWest1DataCenterUri).build();
 
         ServiceEndPoint endPoint = new ServiceEndPointBuilder()
                 .withServiceName(clientFactory.getServiceName())
-                .withId("emodb-eu-west-1")
+                .withId(euWest1DataCenterName)
                 .withPayload(new PayloadBuilder()
                         .withUrl(uri.resolve(DataStoreClient.SERVICE_PATH))
                         .withAdminUrl(uri)
                         .toString())
                 .build();
 
-        return ServicePoolBuilder.create(DataStore.class)
+        return ServicePoolBuilder.create(AuthDataStore.class)
                 .withMetricRegistry(metricRegistry)
                 .withHostDiscovery(new FixedHostDiscovery(endPoint))
                 .withServiceFactory(clientFactory)
                 .buildProxy(new ExponentialBackoffRetry(30, 1, 10, TimeUnit.SECONDS));
     }
+
 }

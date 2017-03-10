@@ -49,28 +49,24 @@ public class PIIProxyResource1 {
     @Path ("_table/{table}")
     @Timed (name = "bv.piiproxy.PIIProxyResource1.createTable", absolute = true)
     public Response createTable(@PathParam ("table") final String table,
-                                @QueryParam ("placement") final String placement,
-                                @QueryParam ("options") final String options,
                                 @QueryParam ("audit") final String audit,
                                 @QueryParam ("apiKey") final String apiKey) {
-        checkArgument(!Strings.isNullOrEmpty(options), "options is required");
         checkArgument(!Strings.isNullOrEmpty(audit), "audit is required");
         checkArgument(!Strings.isNullOrEmpty(apiKey), "apiKey is required");
 
-        _piiProxySource.createTable(table, placement, options, audit, apiKey);
+        _piiProxySource.createTable(table, audit, apiKey);
 
         return Response.status(Response.Status.OK).build();
     }
 
     /**
-     * creates or modifies a piece of pii content.
+     * creates a piece of pii content.
      */
     @POST
-    @Path ("{table}/{key}")
+    @Path ("{table}/")
     @Consumes (MediaType.APPLICATION_JSON)
     @Timed (name = "bv.piiproxy.PIIProxyResource1.update", absolute = true)
-    public Response update(@PathParam ("table") final String table,
-                           @PathParam ("key") final String key,
+    public Response create(@PathParam ("table") final String table,
                            @QueryParam ("locale") final String locale,
                            @QueryParam ("audit") final String audit,
                            @QueryParam ("apiKey") final String apiKey,
@@ -80,11 +76,30 @@ public class PIIProxyResource1 {
         checkArgument(!Strings.isNullOrEmpty(apiKey), "apiKey is required");
         checkArgument(json.isEmpty(), "json is required");
 
-        //build Delta
-        UUID changeId = TimeUUIDs.newUUID();
-        Delta delta = Deltas.literal(json);
+        _piiProxySource.updateContent(table, null, json, locale, audit, apiKey);
 
-        _piiProxySource.updateContent(table, key, changeId, delta, locale, audit, apiKey);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    /**
+     * modifies a piece of pii content.
+     */
+    @POST
+    @Path ("{table}/{key}")
+    @Consumes (MediaType.APPLICATION_JSON)
+    @Timed (name = "bv.piiproxy.PIIProxyResource1.update", absolute = true)
+    public Response update(@PathParam ("table") final String table,
+                           @QueryParam ("key") final String key,
+                           @QueryParam ("locale") final String locale,
+                           @QueryParam ("audit") final String audit,
+                           @QueryParam ("apiKey") final String apiKey,
+                           Map<String, Object> json) {
+        checkArgument(!Strings.isNullOrEmpty(locale), "locale is required");
+        checkArgument(!Strings.isNullOrEmpty(audit), "audit is required");
+        checkArgument(!Strings.isNullOrEmpty(apiKey), "apiKey is required");
+        checkArgument(json.isEmpty(), "json is required");
+
+        _piiProxySource.updateContent(table, key, json, locale, audit, apiKey);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -99,16 +114,13 @@ public class PIIProxyResource1 {
                            @PathParam ("key") final String key,
                            @QueryParam ("locale") final String locale,
                            @QueryParam ("audit") final String audit,
-                           @QueryParam ("apiKey") final String apiKey) {
+                           @QueryParam ("apiKey") final String apiKey,
+                           Map<String, Object> json) {
         checkArgument(!Strings.isNullOrEmpty(locale), "locale is required");
         checkArgument(!Strings.isNullOrEmpty(audit), "audit is required");
         checkArgument(!Strings.isNullOrEmpty(apiKey), "apiKey is required");
 
-        //build Delta
-        UUID changeId = TimeUUIDs.newUUID();
-        Delta delta = Deltas.literal("");
-
-        _piiProxySource.updateContent(table, key, changeId, delta, locale, audit, apiKey);
+        _piiProxySource.updateContent(table, key, json, locale, audit, apiKey);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -124,9 +136,8 @@ public class PIIProxyResource1 {
                                    @QueryParam ("apiKey") final String apiKey) {
         checkArgument(!Strings.isNullOrEmpty(apiKey), "apiKey is required");
 
-        _piiProxySource.getContent(table, key, apiKey);
+        return _piiProxySource.getContent(table, key, apiKey);
 
 //        return Response.ok(...).build();
-        return null;
     }
 }

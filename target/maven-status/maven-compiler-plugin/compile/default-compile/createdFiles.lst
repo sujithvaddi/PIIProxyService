@@ -1,4 +1,9 @@
-com/bazaarvoice/piiproxy/PIIProxyService.class
-com/bazaarvoice/piiproxy/PIIProxyConfiguration.class
-com/bazaarvoice/piiproxy/PIIProxyResource.class
-com/bazaarvoice/piiproxy/Saying.class
+com/bazaarvoice/piiproxy/PiiProxyConfiguration.class
+com/bazaarvoice/piiproxy/Resource/PIIProxyResource1.class
+com/bazaarvoice/piiproxy/pii/PiiProxySource.class
+com/bazaarvoice/piiproxy/PiiProxyService.class
+com/bazaarvoice/piiproxy/Annotations/EmoDataStoreUsEast1Client.class
+com/bazaarvoice/piiproxy/Annotations/EmoDataStoreEuWest1Client.class
+com/bazaarvoice/piiproxy/PiiProxyConfiguration$EmoDataCenterConfiguration.class
+com/bazaarvoice/piiproxy/pii/PiiProxySourceImpl.class
+com/bazaarvoice/piiproxy/PiiProxyModule.class

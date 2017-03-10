@@ -2,6 +2,7 @@ package com.bazaarvoice.piiproxy.pii;
 
 import com.bazaarvoice.emodb.sor.delta.Delta;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -9,9 +10,9 @@ import java.util.UUID;
  */
 public interface PiiProxySource {
 
-    void createTable(String table, String placement, String options, String audit, String apiKey);
+    void createTable(String table, String audit, String apiKey);
 
-    long updateContent(String table, String key, UUID changeId, Delta delta, String locale, String audit, String apiKey);
+    String updateContent(String table, String key, Map<String, Object> json, String locale, String audit, String apiKey);
 
-    void getContent(String table, String key, String apiKey);
+    Map<String, Object> getContent(String table, String key, String apiKey);
 }
